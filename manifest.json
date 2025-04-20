@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "GeoGuessr Cheat",
+  "version": "1.0",
+  "description": "Shows a minimalist map with location info in the top-left corner of GeoGuessr",
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  "permissions": ["webNavigation", "scripting"],
+  "host_permissions": [
+    "https://*.geoguessr.com/*",
+    "https://www.openstreetmap.org/*",
+    "https://nominatim.openstreetmap.org/*"
+  ],
+  "action": {
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    },
+    "default_title": "GeoGuessr Location Display"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.geoguessr.com/*"],
+      "js": ["src/ui.js", "src/mapHandler.js", "src/content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/location_interceptor.js"],
+      "matches": ["https://*.geoguessr.com/*"]
+    }
+  ]
+}
