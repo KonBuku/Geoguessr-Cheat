@@ -2,7 +2,7 @@ let countryCode = null;
 
 function injectScript() {
   const script = document.createElement("script");
-  script.src = chrome.runtime.getURL("location_interceptor.js");
+  script.src = chrome.runtime.getURL("src/location_interceptor.js");
   script.onload = function () {
     this.remove();
   };
