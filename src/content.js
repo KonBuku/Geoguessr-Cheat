@@ -4,7 +4,11 @@ window.addEventListener("message", (event) => {
   if (event.data && event.data.type === "GEOGUESSR_LOCATION") {
     currentLocation = event.data.location;
     window.GeoMap.handleLocationUpdate(currentLocation);
-    window.GeoUI.showUI();
+    
+    const isMapVisible = localStorage.getItem("geoguessrMapVisible");
+    if (isMapVisible !== "false") {
+      window.GeoUI.showUI();
+    }
   }
 });
 
