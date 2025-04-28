@@ -3,7 +3,6 @@ let isMapVisible = true;
 let lastLat = null;
 let lastLng = null;
 const COORD_THRESHOLD = 0.09; // 10km
-let isExtensionEnabled = true;
 
 function injectScript() {
   const script = document.createElement("script");
@@ -12,13 +11,13 @@ function injectScript() {
     this.remove();
   };
   (document.head || document.documentElement).appendChild(script);
-  
+
   setupHotkeys();
 }
 
 function toggleMapVisibility() {
   isMapVisible = !isMapVisible;
-  
+
   const uiElement = document.getElementById("geoguess-assistant");
   if (uiElement) {
     if (isMapVisible) {
@@ -27,38 +26,43 @@ function toggleMapVisibility() {
       window.GeoUI.hideUI();
     }
   }
-  
+
   localStorage.setItem("geoguessrMapVisible", isMapVisible.toString());
 }
 
-function disableExtension() {
-  isExtensionEnabled = false;
-  
+function exitExtension() {
   const uiElement = document.getElementById("geoguess-assistant");
   if (uiElement) {
-    window.GeoUI.hideUI();
     uiElement.remove();
   }
-  
-  localStorage.setItem("geoguessrEnabled", "false");
-  console.log("GeoGuessr Cheat has been disabled. Reload the page to re-enable.");
+
+  document.removeEventListener("keydown", handleKeydown);
+  window.GeoMap = null;
+
+  try {
+    chrome.runtime.sendMessage({ action: "uninstallExtension" });
+  } catch (error) {
+    console.error("Failed to uninstall extension:", error);
+  }
+}
+
+function handleKeydown(event) {
+  if (event.key === "F10") {
+    toggleMapVisibility();
+    event.preventDefault();
+  } else if (event.key === "F9") {
+    exitExtension();
+    event.preventDefault();
+  }
 }
 
 function setupHotkeys() {
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "F10") {
-      toggleMapVisibility();
-      event.preventDefault();
-    } else if (event.key === "F9") {
-      disableExtension();
-      event.preventDefault();
-    }
-  });
-  
+  document.addEventListener("keydown", handleKeydown);
+
   const savedVisibility = localStorage.getItem("geoguessrMapVisible");
   if (savedVisibility !== null) {
     isMapVisible = savedVisibility === "true";
-    
+
     const uiElement = document.getElementById("geoguess-assistant");
     if (uiElement) {
       if (isMapVisible) {
@@ -68,34 +72,27 @@ function setupHotkeys() {
       }
     }
   }
-  
-  const savedEnabled = localStorage.getItem("geoguessrEnabled");
-  if (savedEnabled === "false") {
-    isExtensionEnabled = false;
-  }
 }
 
 function shouldUpdateMap(lat, lng) {
   if (lastLat === null || lastLng === null) {
     return true;
   }
-  
+
   const latDiff = Math.abs(lat - lastLat);
   const lngDiff = Math.abs(lng - lastLng);
-  
+
   return latDiff > COORD_THRESHOLD || lngDiff > COORD_THRESHOLD;
 }
 
 function updateMiniMap(lat, lng) {
-  if (!isExtensionEnabled) return;
-  
   const mapDiv = document.getElementById("mini-map");
   if (!mapDiv) return;
 
   if (!shouldUpdateMap(lat, lng)) {
     return;
   }
-  
+
   lastLat = lat;
   lastLng = lng;
 
@@ -107,13 +104,12 @@ function updateMiniMap(lat, lng) {
       scrolling="no" 
       marginheight="0" 
       marginwidth="0" 
-      src="https://www.openstreetmap.org/export/embed.html?bbox=${lng - 10},${
-    lat - 10
-  },${lng + 10},${lat + 10}&layer=mapnik&marker=${lat},${lng}" 
+      src="https://www.openstreetmap.org/export/embed.html?bbox=${lng - 10},${lat - 10
+    },${lng + 10},${lat + 10}&layer=mapnik&marker=${lat},${lng}" 
       style="border: none; border-radius: 10px;">
     </iframe>
   `;
-  
+
   const uiElement = document.getElementById("geoguess-assistant");
   if (uiElement && !isMapVisible) {
     window.GeoUI.hideUI();
@@ -121,12 +117,10 @@ function updateMiniMap(lat, lng) {
 }
 
 async function fetchLocationName(lat, lng) {
-  if (!isExtensionEnabled) return;
-  
   if (!shouldUpdateMap(lat, lng)) {
     return;
   }
-  
+
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
@@ -166,8 +160,6 @@ async function fetchLocationName(lat, lng) {
 }
 
 function handleLocationUpdate(location) {
-  if (!isExtensionEnabled) return;
-  
   if (!location) return;
 
   const lat = parseFloat(location.lat.toFixed(6));
@@ -181,4 +173,5 @@ window.GeoMap = {
   injectScript,
   handleLocationUpdate,
   setupHotkeys,
+  exitExtension
 };

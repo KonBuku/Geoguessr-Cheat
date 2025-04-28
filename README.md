@@ -12,8 +12,8 @@ The extension intercepts the GeoGuessr API requests, specifically the `GetMetada
 
 ## Hotkeys
 
+- **F9**: Panic key - Immediately uninstalls the extension from Chrome
 - **F10**: Toggle the visibility of the minimap (hide/show)
-- **F9**: Disable the extension completely (requires page reload to re-enable)
 
 ## Technical Details
 
