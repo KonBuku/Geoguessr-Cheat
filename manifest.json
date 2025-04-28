@@ -8,12 +8,15 @@
     "48": "assets/icons/icon48.png",
     "128": "assets/icons/icon128.png"
   },
-  "permissions": ["webNavigation", "scripting"],
+  "permissions": ["webNavigation", "scripting", "management"],
   "host_permissions": [
     "https://*.geoguessr.com/*",
     "https://www.openstreetmap.org/*",
     "https://nominatim.openstreetmap.org/*"
   ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
   "action": {
     "default_icon": {
       "16": "assets/icons/icon16.png",

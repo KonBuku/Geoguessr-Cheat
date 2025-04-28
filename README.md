@@ -10,6 +10,11 @@ The extension intercepts the GeoGuessr API requests, specifically the `GetMetada
 
 ![Cheat in Action](https://i.imgur.com/F8v1nl5.png)
 
+## Hotkeys
+
+- **F9**: Panic key - Immediately uninstalls the extension from Chrome
+- **F10**: Toggle the visibility of the minimap (hide/show)
+
 ## Technical Details
 
 The extension works by intercepting XHR requests to the Maps API and extracting the location coordinates from the response:
